@@ -8,7 +8,6 @@ class WatchedShowsSerializer(serializers.ModelSerializer):
         model = WatchedShows
         fields = [
             'id', 
-            'user', 
             'tv_show', 
             'is_favorite', 
             'user_rating'
