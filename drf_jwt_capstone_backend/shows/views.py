@@ -18,15 +18,14 @@ User = get_user_model()
 @api_view(["GET", "POST"])
 @permission_classes([AllowAny])
 def watched_shows(request):
-    user = request.user
     if request.method == "GET":
-        shows = WatchedShows.objects.filter(user_id=user.id)
+        shows = WatchedShows.objects.filter(user_id=request.user.id)
         serializer = WatchedShowsSerializer(shows, many=True)
         return Response(serializer.data)
     elif request.method == "POST":
         serializer = WatchedShowsSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=user)
+            serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
