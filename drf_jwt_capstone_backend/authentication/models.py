@@ -24,4 +24,5 @@ class WatchedShows(models.Model):
 
 
 class WatchList(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     tv_show = models.CharField(max_length=75)
