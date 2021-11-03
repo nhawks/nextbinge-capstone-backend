@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.fields.json import JSONField
 
 # Create your models here.
 
@@ -11,4 +12,5 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
-    middle_name = models.CharField(max_length=20)
+    streaming_providers = JSONField(default=dict)
+
