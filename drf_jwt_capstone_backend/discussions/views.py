@@ -8,7 +8,6 @@ from .models import Comments
 from .models import Replies
 from .serializers import CommentSerializer
 from .serializers import RepliesSerializer
-from django.contrib.auth.models import User
 
 
 # ? MAIN VIEWS
