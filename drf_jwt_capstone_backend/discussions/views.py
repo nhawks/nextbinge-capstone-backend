@@ -11,8 +11,81 @@ from .serializers import RepliesSerializer
 from django.contrib.auth.models import User
 
 
+#? MAIN VIEWS
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def post_comment(request, tv_show):
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
 
-#? FUNCTION BASED VIEWS
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def post_reply(request, comment_id):
+    serializer = RepliesSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PATCH'])
+@permission_classes([AllowAny])
+def comment_vote(request, pk):
+    comment = Comments.objects.get(pk=pk)
+    if request.path.endswith("up"):
+        comment.likes += 1
+    elif request.path.endswith("down"):
+        comment.dislikes += 1
+    serializer = CommentSerializer(comment, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def tv_show_comments(request, tv_show):
+    comments = Comments.objects.filter(tv_show=tv_show)
+    serializer = CommentSerializer(comments, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def tv_show_replies(request, tv_show):
+        comment = Comments.objects.filter(tv_show=tv_show)
+        comment_serializer = CommentSerializer(comment, many=True)
+        
+        PK_list = []
+        
+        for comment in comment_serializer.data:
+            PK_list.append(comment['id'])
+            
+
+        replies = Replies.objects.filter(comment_id__in=PK_list)
+        reply_serializer = RepliesSerializer(replies, many=True)
+        return Response(reply_serializer.data)
+
+
+#? TESTING VIEWS
+
+#TODO Test returning all comments & replies by TV Show.
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def tv_show_comments_replies(request, tv_show):
+    comment = Comments.objects.filter(tv_show=tv_show)
+    comment_serializer = CommentSerializer(comment, many=True)
+    
+    PK_list = []
+    
+    for comment in comment_serializer.data:
+        PK_list.append(comment['id'])
+    
+    replies = Replies.objects.filter(comment_id__in=PK_list)
+    reply_serializer = RepliesSerializer(replies, many=True)
+    return Response([reply_serializer.data] + [comment_serializer.data])
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_all_comments(request):
@@ -27,23 +100,16 @@ def get_all_replies(request):
     serializer = RepliesSerializer(replies, many=True)
     return Response(serializer.data)
 
-# Create your views here.
-class CommentList(APIView):
-    permission_classes = [AllowAny]
+# Get all comments by TV Show
+# class CommentList(APIView):
+#     permission_classes = [AllowAny]
 
-    def get(self, request, tv_show):
-        comments = Comments.objects.filter(tv_show=tv_show)
-        serializer = CommentSerializer(comments, many=True)
-        return Response(serializer.data)
+#     def get(self, request, tv_show):
+#         comments = Comments.objects.filter(tv_show=tv_show)
+#         serializer = CommentSerializer(comments, many=True)
+#         return Response(serializer.data)
 
-    def post(self, request, tv_show):
-        serializer = CommentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status = status.HTTP_201_CREATED)
-        return Response(serializer._errors, status = status.HTTP_400_BAD_REQUEST)
-
-
+# Get single comment
 class CommentDetail(APIView):
     permission_classes = [AllowAny]
 
@@ -58,48 +124,17 @@ class CommentDetail(APIView):
         serializer = CommentSerializer(comment)
         return Response(serializer.data)
 
-
-class CommentLikes(APIView):
-    permission_classes = [AllowAny]
-
-    def get_object(self, pk):
-        try:
-            return Comments.objects.get(pk=pk)
-        except Comments.DoesNotExist:
-            raise Http404
-    
-    def patch(self, request, pk):
-        comment = self.get_object(pk)
-        if request.path.endswith("up"):
-            comment.likes += 1
-        elif request.path.endswith("down"):
-            comment.dislikes += 1
-        serializer = CommentSerializer(comment, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-
+# Get all replies by Comment ID
 class ReplyList(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, comment):
         replies = Replies.objects.filter(comment_id=comment)
-        serializer = RepliesSerializer(replies, many = True)
+        serializer = RepliesSerializer(replies, many=True)
         return Response(serializer.data)
 
-    def post(self, request, comment):
-        serializer = RepliesSerializer(data = request.data)
-        if serializer.is_valid():
-            serializer.save(comment_id = comment)
-            return Response(serializer.data, status = status.HTTP_201_CREATED)
-        return Response(serializer._errors, status = status.HTTP_400_BAD_REQUEST)
 
-
+# Get single reply
 class ReplyDetail(APIView):
     permission_classes = [AllowAny]
 
@@ -109,26 +144,27 @@ class ReplyDetail(APIView):
         except Replies.DoesNotExist:
             raise status.HTTP_404_NOT_FOUND
 
-    def get(self, pk):
+    def get(self, request, pk):
         reply = self.get_object(pk)
         serializer = RepliesSerializer(reply)
         return Response(serializer.data)
 
 
-class CommentReplies(APIView):
-    permission_classes = [AllowAny]
+# class CommentReplies(APIView):
+#     permission_classes = [AllowAny]
 
-    def get(self, request, video):
-        comment = Comments.objects.filter(video=video)
-        comment_serializer = CommentSerializer(comment, many = True)
-
+#     def get(self, request, tv_show):
+#         comment = Comments.objects.filter(tv_show=tv_show)
+#         comment_serializer = CommentSerializer(comment, many=True)
         
-        PK_list = []
-
-        for i, data in enumerate(comment_serializer.data):
-            PK_list.append(comment_serializer.data[i]["id"])
+#         PK_list = []
+        
+#         for comment in comment_serializer.data:
+#             PK_list.append(comment['id'])
             
 
-        replies = Replies.objects.filter(comment_id__in=PK_list)
-        serializer = RepliesSerializer(replies, many = True)
-        return Response(serializer.data)
+#         replies = Replies.objects.filter(comment_id__in=PK_list)
+#         reply_serializer = RepliesSerializer(replies, many=True)
+#         return Response(reply_serializer.data)
+#         # Test returning all comments/replies by TV Show.
+#         return Response([reply_serializer.data] + [comment_serializer.data])
