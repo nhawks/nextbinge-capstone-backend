@@ -77,7 +77,6 @@ def tv_show_replies(request, tv_show):
     reply_serializer = RepliesSerializer(replies, many=True)
     return Response(reply_serializer.data)
 
-
 # ? TESTING VIEWS
 
 # TODO Test returning all comments & replies by TV Show.

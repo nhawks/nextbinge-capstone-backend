@@ -2,8 +2,6 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model
-from .models import WatchedShows
-from .models import WatchList
 
 User = get_user_model()
 
@@ -47,25 +45,3 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
         return user
     
-
-class WatchedShowsSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = WatchedShows
-        fields = [
-            'id', 
-            'user', 
-            'tv_show', 
-            'is_favorite', 
-            'user_rating'
-        ]
-
-class WatchListSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = WatchList
-        fields = [
-            'id', 
-            'user', 
-            'tv_show'
-        ]
