@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 # ? MAIN VIEWS
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def post_comment(request, tv_show):
+def post_comment(request):
     serializer = CommentSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -26,7 +26,7 @@ def post_comment(request, tv_show):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def post_reply(request, comment_id):
+def post_reply(request):
     serializer = RepliesSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
