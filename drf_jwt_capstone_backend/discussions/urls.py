@@ -10,7 +10,7 @@ urlpatterns = [
     path('comment', views.post_comment),
 
     #* GET: all replies by video.
-    path('<str:tv_show>/comments/replies', views.tv_show_replies),
+    path('<str:tv_show>/replies', views.tv_show_replies),
 
     #* POST: reply to a comment ID.
     path('reply', views.post_reply),
