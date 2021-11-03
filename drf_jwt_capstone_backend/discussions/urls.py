@@ -7,13 +7,13 @@ urlpatterns = [
     path('<str:tv_show>/comments', views.tv_show_comments),
 
     #* POST: comment to TV Show.
-    path('<str:tv_show>/comment', views.post_comment),
+    path('comment', views.post_comment),
 
     #* GET: all replies by video.
     path('<str:tv_show>/comments/replies', views.tv_show_replies),
 
     #* POST: reply to a comment ID.
-    path('comment/<int:comment_id>/reply', views.post_reply),
+    path('reply', views.post_reply),
 
     #* PATCH: Like/Dislike comment.
     path('comment/<int:pk>/thumbs_up', views.comment_vote),
