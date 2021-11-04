@@ -1,4 +1,5 @@
 import re
+from django.http import response
 from django.shortcuts import redirect, render
 from rest_framework import serializers, status
 from rest_framework.views import APIView
@@ -73,6 +74,31 @@ def update_favorites(request, pk, method):
         return Response(status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+def comment_vote(request, pk):
+    comment = Comments.objects.filter(pk=pk)
+    if request.path.endswith("up"):
+        comment.update(likes=F('likes') + 1)
+    elif request.path.endswith("down"):
+        comment.update(dislikes=F('dislikes') + 1)
+    return Response(status=status.HTTP_200_OK)
+
+
+
+@api_view(["PATCH", "GET"])
+@permission_classes([AllowAny])
+def user_liked_show(request):
+    if request.method == "PATCH":
+        show = WatchedShows.objects.filter(pk=request.data["id"])
+        if request.path.endswith("up"):
+            show = show.update(user_rating=F('user_rating') + 1)
+        elif request.path.endswith("down"):
+            show = show.update(user_rating=F('user_rating') - 1)
+        return Response(status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
 
 # ? WATCHLIST
