@@ -115,3 +115,14 @@ def user_watchlist(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+        
+#* REMOVE TV SHOW FROM WATCHLIST
+@api_view(["DELETE"])
+@permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
+def remove_show_from_watchlist(request):
+    if request.method == "DELETE":
+        WatchList.objects.filter(pk=request.data["id"]).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    else:
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
