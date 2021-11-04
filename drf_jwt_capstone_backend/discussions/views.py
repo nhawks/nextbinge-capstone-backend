@@ -8,6 +8,7 @@ from .models import Comments
 from .models import Replies
 from .serializers import CommentSerializer
 from .serializers import RepliesSerializer
+from django.db.models import F
 
 
 # ? MAIN VIEWS
@@ -38,20 +39,12 @@ def post_reply(request):
 @api_view(["PATCH"])
 @permission_classes([AllowAny])
 def comment_vote(request, pk):
-    comment = Comments.objects.get(pk=pk)
+    comment = Comments.objects.filter(pk=pk)
     if request.path.endswith("up"):
-        comment.likes += 1
+        comment.update(likes=F('likes') + 1)
     elif request.path.endswith("down"):
-        comment.dislikes += 1
-    serializer = CommentSerializer(
-        comment, data=request.data, partial=True
-    )
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    return Response(
-        serializer.errors, status=status.HTTP_400_BAD_REQUEST
-    )
+        comment.update(dislikes=F('dislikes') + 1)
+    return Response(status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
