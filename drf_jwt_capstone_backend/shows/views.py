@@ -24,33 +24,35 @@ User = get_user_model()
 @api_view(["GET", "POST"])
 @permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
 def watched_shows(request):
-    # First check to see if the user already has watched the show.
-    # If so redirect to update_favorites.
-    if WatchedShows.objects.filter(Q(user_id=request.user.id) & Q(tv_show=request.data["tv_show"])).exists():
-        show = WatchedShows.objects.get(
-            Q(user_id=request.user.id) 
-            & Q(tv_show=request.data["tv_show"])
-        )
-        request.method = "PATCH"
-        return redirect(
-            "shows:remove_favorite" if show.is_favorite else "shows:add_favorite",
-            pk=show.id,
-            method="PATCH"
-        )
     # Get all shows that a user has watched.
     if request.method == "GET":
         shows = WatchedShows.objects.filter(user_id=request.user.id)
         serializer = WatchedShowsSerializer(shows, many=True)
         return Response(serializer.data)
-    # Mark the show as watched. The response.data will determine if it's a favorite.
-    elif request.method == "POST":
-        serializer = WatchedShowsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == "POST":
+        # First check to see if the user already has watched the show.
+        # If the show exists update the fields with the request data using PATCH.
+        if WatchedShows.objects.filter(Q(user_id=request.user.id) & Q(tv_show=request.data["tv_show"])).exists():
+            request.method = "PATCH"
+            WatchedShows.objects.filter(
+                Q(user_id=request.user.id) 
+                & Q(tv_show=request.data["tv_show"])
+            ).update(
+                user_rating=request.data["user_rating"], 
+                is_favorite=request.data["is_favorite"]
+            )
+            return Response(status=status.HTTP_200_OK)
+        else:
+            serializer = WatchedShowsSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(user=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     else:
         return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
 #* GET ALL FAVORITE TV SHOWS
 @api_view(["GET"])
@@ -65,20 +67,15 @@ def favorite_shows(request):
 
 
 #* UPDATE FAVORITES
-@api_view(["PATCH", "GET"])
+@api_view(["PATCH"])
 @permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
-def update_favorites(request, pk, method):
-    request.method = method
+def update_favorites(request):
     if request.method == "PATCH":
-        show = WatchedShows.objects.filter(pk=pk)
-        shows = WatchedShows.objects.filter(Q(user_id=request.user.id) & Q(is_favorite=True))
-        if request.path.endswith("add"): # is_favorite = True
-            show = show.update(is_favorite=F('is_favorite') + 1)
-        if request.path.endswith("remove"): # is_favorite = False
-            show = show.update(is_favorite=F('is_favorite') - 1)
+        if request.path.endswith("update"): # is_favorite = True
+            WatchedShows.objects.filter(pk=request.data["id"]).update(is_favorite=request.data["is_favorite"])
         # Removes all favorite shows from user. No shows are actually deleted from 'Watched' table.
         if request.path.endswith("remove-all"): # all is_favorite = False
-            shows = shows.update(is_favorite=F("is_favorite") - 1)
+            WatchedShows.objects.filter(Q(user_id=request.user.id) & Q(is_favorite=True)).update(is_favorite=False)
         return Response(status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -91,14 +88,24 @@ def user_liked_show(request):
     if request.method == "PATCH":
         show = WatchedShows.objects.filter(pk=request.data["id"])
         if request.path.endswith("up"): # user_rating = True
-            show = show.update(user_rating=F('user_rating') + 1)
+            WatchedShows.objects.filter(pk=request.data["id"]).update(user_rating=True)
         elif request.path.endswith("down"): # user_rating = False
-            show = show.update(user_rating=F('user_rating') - 1)
+            WatchedShows.objects.filter(pk=request.data["id"]).update(user_rating=False)
         return Response(status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-
 # ? WATCHLIST
 
+
+#* GET/ADD/DELETE SHOW(S) ON WATCHLIST
+@api_view(["GET"])
+@permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
+def user_watchlist(request):
+    if request.method == "GET":
+        watchlist = WatchList.objects.filter(user_id=request.user.id)
+        serializer = WatchListSerializer(watchlist, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
