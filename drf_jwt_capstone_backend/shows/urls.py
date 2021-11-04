@@ -10,7 +10,7 @@ urlpatterns = [
 
     #* GET: user's favorite shows
     path('favorites/', views.favorite_shows, name="favorites"),
-    path('favorites/add', views.update_favorites),
-    path('favorites/remove', views.update_favorites),
+    path('favorites/<int:pk>/<str:method>/add', views.update_favorites, name="add_favorite"),
+    path('favorites/<int:pk>/<str:method>/remove', views.update_favorites, name="remove_favorite"),
     path('favorites/remove-all', views.update_favorites),
 ]
