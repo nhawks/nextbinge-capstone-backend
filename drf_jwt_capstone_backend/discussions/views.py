@@ -23,7 +23,6 @@ def post_comment(request):
         serializer._errors, status=status.HTTP_400_BAD_REQUEST
     )
 
-
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def post_reply(request):
@@ -85,14 +84,12 @@ def tv_show_comments_replies(request, tv_show):
     reply_serializer = RepliesSerializer(replies, many=True)
     return Response([reply_serializer.data] + [comment_serializer.data])
 
-
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def get_all_comments(request):
     comments = Comments.objects.all()
     serializer = CommentSerializer(comments, many=True)
     return Response(serializer.data)
-
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
