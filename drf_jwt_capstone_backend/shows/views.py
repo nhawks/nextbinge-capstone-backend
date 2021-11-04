@@ -13,7 +13,6 @@ from django.db.models import Q
 from django.db.models import F
 
 
-
 User = get_user_model()
 
 # ? Watched Shows Views
@@ -44,9 +43,26 @@ def favorite_shows(request):
         serializer = WatchedShowsSerializer(shows, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     if request.method == "PATCH":
-        show = shows.filter(pk=request.data["id"])
+        show = WatchedShows.objects.filter(pk=request.data["id"])
         show = show.update(is_favorite=F('is_favorite') - 1)
         return Response(status=status.HTTP_200_OK)
+
+@api_view(["PATCH"])
+@permission_classes([AllowAny])
+def update_favorites(request):
+    if request.method == "PATCH":
+        show = WatchedShows.objects.filter(pk=request.data["id"])
+        shows = WatchedShows.objects.filter(Q(user_id=request.user.id) & Q(is_favorite=True))
+        if request.path.endswith("add"):
+            show = show.update(is_favorite=F('is_favorite') + 1)
+        elif request.path.endswith("remove"):
+            show = show.update(is_favorite=F('is_favorite') - 1)
+        elif request.path.endswith("remove-all"):
+            shows = shows.update(is_favorite=F("is_favorite") - 1)
+        return Response(status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+   
 
 # ? WatchList Views
 
