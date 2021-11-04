@@ -35,7 +35,6 @@ def post_reply(request):
         serializer._errors, status=status.HTTP_400_BAD_REQUEST
     )
 
-
 @api_view(["PATCH"])
 @permission_classes([AllowAny])
 def comment_vote(request, pk):
@@ -46,14 +45,12 @@ def comment_vote(request, pk):
         comment.update(dislikes=F('dislikes') + 1)
     return Response(status=status.HTTP_200_OK)
 
-
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def tv_show_comments(request, tv_show):
     comments = Comments.objects.filter(tv_show=tv_show)
     serializer = CommentSerializer(comments, many=True)
     return Response(serializer.data)
-
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
