@@ -19,6 +19,5 @@ class WatchListSerializer(serializers.ModelSerializer):
         model = WatchList
         fields = [
             'id', 
-            'user', 
             'tv_show'
         ]
