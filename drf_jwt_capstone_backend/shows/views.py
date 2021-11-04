@@ -9,6 +9,9 @@ from .models import WatchedShows
 from .serializers import WatchedShowsSerializer
 from .serializers import WatchListSerializer
 from django.contrib.auth import get_user_model
+from django.db.models import Q
+from django.db.models import F
+
 
 
 User = get_user_model()
@@ -31,6 +34,15 @@ def watched_shows(request):
     else:
         return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def favorite_shows(request):
+    if request.method == "GET":
+        shows = WatchedShows.objects.filter(Q(user_id=request.user.id) & Q(is_favorite=True))
+        serializer = WatchedShowsSerializer(shows, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
 
 # ? WatchList Views
 

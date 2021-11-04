@@ -5,6 +5,7 @@ urlpatterns = [
     #? localhost/api/show/...path
     #! GET: user's watched shows
     path('watched/', views.watched_shows),
+    path('favorites/', views.favorite_shows),
     
     
 
