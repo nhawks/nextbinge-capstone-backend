@@ -21,7 +21,7 @@ User = get_user_model()
 
 
 #* ADD SHOW TO FAVORITES/WATCHED
-@api_view(["GET", "POST"])
+@api_view(["GET"])
 @permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
 def watched_shows(request):
     # Get all shows that a user has watched.
@@ -29,7 +29,14 @@ def watched_shows(request):
         shows = WatchedShows.objects.filter(user_id=request.user.id)
         serializer = WatchedShowsSerializer(shows, many=True)
         return Response(serializer.data)
+    else:
+        return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
 
+
+#* ADD SHOW TO WATCHED
+@api_view(["POST"])
+@permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
+def add_show_to_watched(request):
     if request.method == "POST":
         # First check to see if the user already has watched the show.
         # If the show exists update the fields with the request data using PATCH.
@@ -49,7 +56,6 @@ def watched_shows(request):
                 serializer.save(user=request.user)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     else:
         return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
 
@@ -66,7 +72,7 @@ def favorite_shows(request):
         return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-#* UPDATE FAVORITES
+#* UPDATE TV SHOW FAVORITES
 @api_view(["PATCH"])
 @permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
 def update_favorites(request):
@@ -81,8 +87,8 @@ def update_favorites(request):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-#* LIKE/DISLIKE SHOW
-@api_view(["PATCH", "GET"])
+#* LIKE/DISLIKE TV SHOW
+@api_view(["PATCH"])
 @permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
 def user_liked_show(request):
     if request.method == "PATCH":
@@ -99,7 +105,7 @@ def user_liked_show(request):
 # ? WATCHLIST
 
 
-#* GET/ADD/DELETE SHOW(S) ON WATCHLIST
+#* GET USER'S WATCHLIST
 @api_view(["GET"])
 @permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
 def user_watchlist(request):

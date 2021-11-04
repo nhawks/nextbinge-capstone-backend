@@ -5,8 +5,11 @@ from . import views
 urlpatterns = [
     #? localhost/api/show/...path
     #? WATCHED SHOWS
-    #* GET: user's watched shows | POST: mark show as watched/favorite
+    #* GET: user's watched shows
     path('watched/', views.watched_shows),
+    #* POST: add show to watched or PATCH: if show already added
+    path('watched/add', views.add_show_to_watched),
+    
 
     #* GET: user's favorite shows
     path('favorites/', views.favorite_shows),
