@@ -24,6 +24,7 @@ urlpatterns = [
     #? WATCH LIST
     #* GET: shows on user's watchlist
     path('watchlist/', views.user_watchlist),
+    path('watchlist/show/add', views.add_show_to_watchlist),
     path('watchlist/show/delete', views.remove_show_from_watchlist),
 
 

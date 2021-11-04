@@ -20,7 +20,7 @@ User = get_user_model()
 # ? WATCHED SHOWS
 
 
-#* ADD SHOW TO FAVORITES/WATCHED
+#* GET WATCHED TV SHOWS
 @api_view(["GET"])
 @permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
 def watched_shows(request):
@@ -117,6 +117,19 @@ def user_watchlist(request):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
         
+#* ADD TV SHOW TO WATCHLIST
+@api_view(["POST"])
+@permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
+def add_show_to_watchlist(request):
+    if request.method == "POST":
+        serializer = WatchListSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 #* REMOVE TV SHOW FROM WATCHLIST
 @api_view(["DELETE"])
 @permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
@@ -126,3 +139,4 @@ def remove_show_from_watchlist(request):
         return Response(status=status.HTTP_204_NO_CONTENT)
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
