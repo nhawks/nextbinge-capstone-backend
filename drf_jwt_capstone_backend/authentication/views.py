@@ -27,4 +27,4 @@ class UserDetail(APIView):
     def get(self, request, pk):
         user = self.get_object(pk)
         serializer = RegistrationSerializer(user)
-        return Response(serializer.data, status=status.HTTP_302_FOUND)
+        return Response(serializer.data, status=status.HTTP_200_OK)
