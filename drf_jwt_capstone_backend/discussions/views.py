@@ -13,7 +13,7 @@ from django.db.models import F
 
 # ? MAIN VIEWS
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def post_comment(request):
     serializer = CommentSerializer(data=request.data)
     if serializer.is_valid():
@@ -24,7 +24,7 @@ def post_comment(request):
     )
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def post_reply(request):
     serializer = RepliesSerializer(data=request.data)
     if serializer.is_valid():
@@ -82,7 +82,7 @@ def tv_show_comments_replies(request, tv_show):
 
     replies = Replies.objects.filter(comment_id__in=PK_list)
     reply_serializer = RepliesSerializer(replies, many=True)
-    return Response([reply_serializer.data] + [comment_serializer.data])
+    return Response([comment_serializer.data] + [reply_serializer.data])
 
 @api_view(["GET"])
 @permission_classes([AllowAny])

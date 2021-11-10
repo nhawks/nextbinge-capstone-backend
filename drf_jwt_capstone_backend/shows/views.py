@@ -22,7 +22,7 @@ User = get_user_model()
 
 #* GET WATCHED TV SHOWS
 @api_view(["GET"])
-@permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
+@permission_classes([IsAuthenticated]) #TODO change to IsAuthenticated after testing.
 def watched_shows(request):
     # Get all shows that a user has watched.
     if request.method == "GET":
@@ -35,7 +35,7 @@ def watched_shows(request):
 
 #* ADD SHOW TO WATCHED
 @api_view(["POST"])
-@permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
+@permission_classes([IsAuthenticated]) #TODO change to IsAuthenticated after testing.
 def add_show_to_watched(request):
     if request.method == "POST":
         # First check to see if the user already has watched the show.
@@ -62,7 +62,7 @@ def add_show_to_watched(request):
 
 #* GET ALL FAVORITE TV SHOWS
 @api_view(["GET"])
-@permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
+@permission_classes([IsAuthenticated]) #TODO change to IsAuthenticated after testing.
 def favorite_shows(request):
     if request.method == "GET":
         shows = WatchedShows.objects.filter(Q(user_id=request.user.id) & Q(is_favorite=True))
@@ -74,7 +74,7 @@ def favorite_shows(request):
 
 #* UPDATE TV SHOW FAVORITES
 @api_view(["PATCH"])
-@permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
+@permission_classes([IsAuthenticated]) #TODO change to IsAuthenticated after testing.
 def update_favorites(request):
     if request.method == "PATCH":
         if request.path.endswith("update"): # is_favorite = True
@@ -89,7 +89,7 @@ def update_favorites(request):
 
 #* LIKE/DISLIKE TV SHOW
 @api_view(["PATCH"])
-@permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
+@permission_classes([IsAuthenticated]) #TODO change to IsAuthenticated after testing.
 def user_liked_show(request):
     if request.method == "PATCH":
         show = WatchedShows.objects.filter(pk=request.data["id"])
@@ -107,7 +107,7 @@ def user_liked_show(request):
 
 #* GET USER'S WATCHLIST
 @api_view(["GET"])
-@permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
+@permission_classes([IsAuthenticated]) #TODO change to IsAuthenticated after testing.
 def user_watchlist(request):
     if request.method == "GET":
         watchlist = WatchList.objects.filter(user_id=request.user.id)
@@ -119,7 +119,7 @@ def user_watchlist(request):
         
 #* ADD TV SHOW TO WATCHLIST
 @api_view(["POST"])
-@permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
+@permission_classes([IsAuthenticated]) #TODO change to IsAuthenticated after testing.
 def add_show_to_watchlist(request):
     if request.method == "POST":
         serializer = WatchListSerializer(data=request.data)
@@ -132,7 +132,7 @@ def add_show_to_watchlist(request):
 
 #* REMOVE TV SHOW FROM WATCHLIST
 @api_view(["DELETE"])
-@permission_classes([AllowAny]) #TODO change to IsAuthenticated after testing.
+@permission_classes([IsAuthenticated]) #TODO change to IsAuthenticated after testing.
 def remove_show_from_watchlist(request):
     if request.method == "DELETE":
         WatchList.objects.filter(pk=request.data["id"]).delete()
