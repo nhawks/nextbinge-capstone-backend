@@ -6,6 +6,9 @@ urlpatterns = [
     #* GET: all comments by TV Show
     path('<str:tv_show>/comments', views.tv_show_comments),
 
+    #* GET: all comments by TV Show
+    path('<str:tv_show>/discussion', views.tv_show_comments_replies),
+
     #* POST: comment to TV Show
     path('comment', views.post_comment),
 
@@ -16,8 +19,8 @@ urlpatterns = [
     path('reply', views.post_reply),
 
     #* PATCH: Like/Dislike comment
-    path('comment/<int:pk>/thumbs_up', views.comment_vote),
-    path('comment/<int:pk>/thumbs_down', views.comment_vote),
+    path('comment/<int:pk>/thumb_up', views.comment_vote),
+    path('comment/<int:pk>/thumb_down', views.comment_vote),
 
     #? For testing.
     #* GET: all comments from the DB
