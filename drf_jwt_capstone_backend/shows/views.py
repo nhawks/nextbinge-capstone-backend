@@ -40,13 +40,13 @@ def add_show_to_watched(request):
     if request.method == "POST":
         # First check to see if the user already has watched the show.
         # If the show exists update the fields with the request data using PATCH.
-        if WatchedShows.objects.filter(Q(user_id=request.user.id) & Q(tv_show=request.data["tv_show"])).exists():
+        if WatchedShows.objects.filter(Q(user_id=request.user.id) & Q(tv_show_id=request.data["tv_show_id"])).exists():
             request.method = "PATCH"
             WatchedShows.objects.filter(
                 Q(user_id=request.user.id) 
-                & Q(tv_show=request.data["tv_show"])
+                & Q(tv_show_id=request.data["tv_show_id"])
             ).update(
-                user_rating=request.data["user_rating"], 
+                liked_show=request.data["liked_show"], 
                 is_favorite=request.data["is_favorite"]
             )
             return Response(status=status.HTTP_200_OK)
@@ -93,10 +93,10 @@ def update_favorites(request):
 def user_liked_show(request):
     if request.method == "PATCH":
         show = WatchedShows.objects.filter(pk=request.data["id"])
-        if request.path.endswith("up"): # user_rating = True
-            WatchedShows.objects.filter(pk=request.data["id"]).update(user_rating=True)
-        elif request.path.endswith("down"): # user_rating = False
-            WatchedShows.objects.filter(pk=request.data["id"]).update(user_rating=False)
+        if request.path.endswith("up"): # liked_show = True
+            WatchedShows.objects.filter(pk=request.data["id"]).update(liked_show=True)
+        elif request.path.endswith("down"): # liked_show = False
+            WatchedShows.objects.filter(pk=request.data["id"]).update(liked_show=False)
         return Response(status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
