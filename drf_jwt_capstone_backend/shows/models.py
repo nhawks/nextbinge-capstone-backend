@@ -10,7 +10,7 @@ class WatchedShows(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     tv_show = models.CharField(max_length=75)
     is_favorite = models.BooleanField(default=False)
-    user_rating = models.BooleanField(default=False)
+    user_rating = models.BooleanField(null=True)
 
 
 class WatchList(models.Model):
