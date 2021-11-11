@@ -13,7 +13,7 @@ urlpatterns = [
 
     #* GET: user's favorite shows
     path('favorites/', views.favorite_shows),
-    path('favorites/add', views.update_favorites),
+    path('favorites/add', views.add_show_to_watched),
     path('favorites/update', views.update_favorites),
     path('favorites/remove', views.update_favorites),
     path('favorites/remove-all', views.update_favorites),
