@@ -1,14 +1,12 @@
-from django.shortcuts import render
-from rest_framework import serializers, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.decorators import api_view, permission_classes
-from .models import Comments
-from .models import Replies
-from .serializers import CommentSerializer
-from .serializers import RepliesSerializer
 from django.db.models import F
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .models import Comments, Replies
+from .serializers import CommentSerializer, RepliesSerializer
 
 
 # ? MAIN VIEWS
@@ -19,9 +17,8 @@ def post_comment(request):
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(
-        serializer._errors, status=status.HTTP_400_BAD_REQUEST
-    )
+    return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -30,19 +27,19 @@ def post_reply(request):
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(
-        serializer._errors, status=status.HTTP_400_BAD_REQUEST
-    )
+    return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["PATCH"])
 @permission_classes([AllowAny])
 def comment_vote(request, pk):
     comment = Comments.objects.filter(pk=pk)
     if request.path.endswith("up"):
-        comment.update(likes=F('likes') + 1)
+        comment.update(likes=F("likes") + 1)
     elif request.path.endswith("down"):
-        comment.update(dislikes=F('dislikes') + 1)
+        comment.update(dislikes=F("dislikes") + 1)
     return Response(status=status.HTTP_200_OK)
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -50,6 +47,7 @@ def tv_show_comments(request, tv_show):
     comments = Comments.objects.filter(tv_show=tv_show)
     serializer = CommentSerializer(comments, many=True)
     return Response(serializer.data)
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -65,6 +63,7 @@ def tv_show_replies(request, tv_show):
     replies = Replies.objects.filter(comment_id__in=PK_list)
     reply_serializer = RepliesSerializer(replies, many=True)
     return Response(reply_serializer.data)
+
 
 # ? TESTING VIEWS
 
@@ -84,12 +83,14 @@ def tv_show_comments_replies(request, tv_show):
     reply_serializer = RepliesSerializer(replies, many=True)
     return Response([comment_serializer.data] + [reply_serializer.data])
 
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def get_all_comments(request):
     comments = Comments.objects.all()
     serializer = CommentSerializer(comments, many=True)
     return Response(serializer.data)
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])

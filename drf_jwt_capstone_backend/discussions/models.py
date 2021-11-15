@@ -8,6 +8,7 @@ class Comments(models.Model):
     likes = models.IntegerField(default=0)
     dislikes = models.IntegerField(default=0)
 
+
 class Replies(models.Model):
     comment = models.ForeignKey(Comments, on_delete=models.CASCADE)
     username = models.CharField(max_length=50)

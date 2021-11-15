@@ -9,9 +9,15 @@ djangorestframework = "*"
 djangorestframework-simplejwt = "*"
 mysql-connector-python = "==8.0.26"
 django-cors-headers = "*"
+pep8 = "*"
+autopep8 = "*"
 
 [dev-packages]
 autopep8 = "*"
+black = "*"
 
 [requires]
 python_version = "3.9"
+
+[pipenv]
+allow_prereleases = true
